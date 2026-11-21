@@ -194,3 +194,133 @@ def jogador_quer_voar(self):
         teclas = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pressed()
         return teclas[pygame.K_SPACE] or teclas[pygame.K_UP] or teclas[pygame.K_w] or mouse[0]
+    # Atualização (lógica)
+def atualizar(self, dt):
+    if self.estado in ("menu", "instrucoes", "recordes"):
+        self.cenario_menu.atualizar(dt, 120)
+        self.pombo_menu.animar(dt, True)
+    elif self.estado == "jogando":
+        self.atualizar_partida(dt)
+
+def atualizar_partida(self, dt):
+    self.pombo.atualizar(dt, self.jogador_quer_voar())
+
+    # A velocidade aumenta até 25% ao longo da fase
+    progresso = self.distancia / self.meta_pixels
+    self.velocidade = self.fase["velocidade"] * (1 + 0.25 * progresso)
+    if self.pombo.tempo_turbo > 0:
+        self.velocidade *= 1.7
+
+    self.distancia += self.velocidade * dt
+    self.cenario.atualizar(dt, self.velocidade)
+
+    # Cria novos obstáculos (para de criar perto do fim da fase)
+    falta = self.meta_pixels - self.distancia
+    if self.distancia >= self.proximo_padrao and falta > 700:
+        self.gerar_padrao()
+
+    for obstaculo in self.obstaculos:
+        obstaculo.atualizar(dt, self.velocidade)
+    for item in self.itens:
+        item.atualizar(dt, self.velocidade, self.pombo)
+    for particula in self.particulas:
+        particula.atualizar(dt)
+
+    self.verificar_colisoes()
+    if self.estado != "jogando":      # pode ter dado game over na colisão
+        return
+
+    self.obstaculos = remover_inativos(self.obstaculos)
+    self.itens = remover_inativos(self.itens)
+    self.particulas = remover_inativos(self.particulas)
+
+# Multiplicador: +1 a cada 8 segundos sem bater (máximo x5)
+    self.tempo_sem_bater += dt
+    self.multiplicador = min(5, 1 + int(self.tempo_sem_bater // 8))
+    self.pontos += self.velocidade * dt / 100 * self.multiplicador
+
+    self.tremor = max(0, self.tremor - dt)
+    self.tempo_banner = max(0, self.tempo_banner - dt)
+
+    if self.distancia >= self.meta_pixels:
+        self.concluir_fase()
+
+def gerar_padrao(self):
+    nome = random.choice(self.fase["padroes"])
+    x_inicial = LARGURA + 40
+    maior_dx = 0
+    for tipo, dx, valor in PADROES[nome]:
+        self.criar_peca(tipo, x_inicial + dx, valor)
+        if dx > maior_dx:
+            maior_dx = dx
+
+    # Chance de aparecer um power-up depois do padrão
+    if random.random() < self.fase["chance_powerup"]:
+        tipo = random.choice(list(TIPOS_POWERUP.keys()))
+        y = random.randint(120, CHAO_Y - 120)
+        self.itens.append(PowerUp(x_inicial + maior_dx + 160, y, tipo))
+
+    espaco = random.randint(self.fase["espaco_min"], self.fase["espaco_max"])
+    self.proximo_padrao = self.distancia + maior_dx + 120 + espaco
+
+def criar_peca(self, tipo, x, valor):
+    if tipo == "predio":
+        self.obstaculos.append(Predio(x, valor, self.fase["noite"]))
+    elif tipo == "placa":
+        self.obstaculos.append(Placa(x, valor))
+    elif tipo == "fio":
+        self.obstaculos.append(Fio(x, valor))
+    elif tipo == "drone":
+        self.obstaculos.append(Drone(x, valor))
+    elif tipo == "gaviao":
+        aviso = self.fase["aviso_gaviao"] + valor      # valor = espera extra (gavião em sequência)
+        self.obstaculos.append(Gaviao(x, self.pombo, aviso, self.fase["rasante_gaviao"]))
+    elif tipo == "pao":
+        self.itens.append(PaoDeQueijo(x, valor))
+
+def verificar_colisoes(self):
+    for obstaculo in self.obstaculos:
+        if obstaculo.ativo and self.pombo.rect.colliderect(obstaculo.rect):
+            if self.pombo.tempo_turbo > 0:
+                # No turbo o pombo destrói o obstáculo
+                obstaculo.ativo = False
+                self.pontos += 20 * self.multiplicador
+                self.criar_particulas(obstaculo.rect.center, CORES["laranja"], 25)
+                self.sons.tocar("explosao")
+            elif self.pombo.tempo_invencivel <= 0:
+                self.pombo_bateu()
+                if self.estado != "jogando":
+                    return
+
+    for item in self.itens:
+        if item.ativo and self.pombo.rect.colliderect(item.rect):
+            item.ativo = False
+            self.pontos += item.aplicar(self.pombo) * self.multiplicador
+            self.sons.tocar(item.som)
+            self.criar_particulas(item.rect.center, item.cor, 10)
+
+def pombo_bateu(self):
+    resultado = self.pombo.levar_dano()
+    self.tempo_sem_bater = 0
+    self.multiplicador = 1
+    self.tremor = 0.35
+    self.criar_particulas(self.pombo.rect.center, (210, 210, 220), 15)   # penas voando
+    if resultado == "escudo":
+        self.sons.tocar("escudo")
+    else:
+        self.sons.tocar("batida")
+    if self.pombo.vidas <= 0:
+        self.estado = "game_over"
+        self.sons.tocar("game_over")
+
+def criar_particulas(self, posicao, cor, quantidade):
+    for _ in range(quantidade):
+        self.particulas.append(Particula(posicao[0], posicao[1], cor))
+def concluir_fase(self):
+    self.bonus_fase = self.pombo.vidas * 100
+    self.pontos += self.bonus_fase
+    self.sons.tocar("fase")
+    if self.indice_fase == len(FASES) - 1:
+        self.estado = "vitoria"
+    else:
+        self.estado = "fase_concluida"
