@@ -45,7 +45,7 @@ class Jogo:
     def __init__(self):
         pygame.mixer.pre_init(44100, -16, 1, 512)
         pygame.init()
-        self.tela = pygame.display.set_mode((LARGURA, ALTURA))
+        self.tela = pygame.display.set_mode((LARGURA, ALTURA), pygame.SCALED | pygame.FULLSCREEN)
         pygame.display.set_caption(TITULO)
         self.relogio = pygame.time.Clock()
         self.mundo = pygame.Surface((LARGURA, ALTURA))   # onde o jogo é desenhado (para tremer a tela)
