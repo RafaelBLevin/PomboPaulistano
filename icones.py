@@ -33,19 +33,19 @@ def ima(tela,cx,cy,s):
     for i in range(13):
         a = math.pi * (i/12)
         pontos.append((cx-externo * math.cos(a), cy + externo * math.sin(a)))
-        pontos.append((cx +externo, topo))
-        pontos.append((cx + interno, topo))
+    pontos.append((cx +externo, topo))
+    pontos.append((cx + interno, topo))
     #meia-volta de dentro
     for i in range(13):
         a = math.pi * (i/12)
         pontos.append((cx + interno * math.cos(a), cy + interno * math.sin(a)))
-        pontos.append((cx - interno, topo))
-        pygame.draw.polygon(tela, vermelho, pontos)
-        #pontas
-        largura_braco = externo - interno
-        prata = (220,220,230)
-        pygame.draw.rect(tela, prata, (cx - externo, topo, largura_braco, s*0.4))
-        pygame.draw.rect(tela, prata, (cx + interno, topo,largura_braco, s * 0.4))
+    pontos.append((cx - interno, topo))
+    pygame.draw.polygon(tela, vermelho, pontos)
+    #pontas
+    largura_braco = externo - interno
+    prata = (220,220,230)
+    pygame.draw.rect(tela, prata, (cx - externo, topo, largura_braco, s*0.4))
+    pygame.draw.rect(tela, prata, (cx + interno, topo,largura_braco, s * 0.4))
 def raio(tela,cx,cy,s):
     """Raio: Turbo"""
     formato = [(0.2, -1), (-0.6,0.12), (-0.05,0.12), (-0.25,1), (0.6, -0.18), (0.05, -0.18)]
