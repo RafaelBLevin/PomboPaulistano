@@ -55,5 +55,5 @@ Sons gerados matematicamente com o módulo array
 Partículas e tremor de tela
 Ranking salvo em arquivo
 Uso de IA generativa:
-Ajuda na criação dos sprites(coração,guarda-chuva,raio,imã e pombo) e ajuda a entender funções do pygame como (pygame.draw, pygame.Rect) e ajuda na criação do código base do jogo. https://claude.ai/share/4e4383b9-67d7-4266-bcf7-a7c9a3a358b2
+Ajuda na criação dos sprites(coração,guarda-chuva,raio,imã e pombo) e ajuda a entender funções do pygame como (pygame.draw, pygame.Rect) e ajuda na criação do código base do jogo. (https://claude.ai/share/4e4383b9-67d7-4266-bcf7-a7c9a3a358b2)
 
