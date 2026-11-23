@@ -12,7 +12,7 @@ class Pombo:
     def __init__(self):
         self.x = POMBO_X
         self.y = ALTURA/2
-        self.vel.y = 0
+        self.vel_y = 0
         self.vidas = VIDAS_INICIAIS
         self.paes = 0
         #TEMPORIZADORES
@@ -129,7 +129,7 @@ class Pombo:
         #Guarda-chuva por cima do pombo
         if self.tem_guarda_chuva:
             guarda_chuva(tela,cx+4,cy-36,26)
-            
+
         
         
         
