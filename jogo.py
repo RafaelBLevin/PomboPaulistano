@@ -324,3 +324,183 @@ def concluir_fase(self):
         self.estado = "vitoria"
     else:
         self.estado = "fase_concluida"
+#desenho
+def desenhar_texto(self, texto, fonte, cor, x, y, centralizado=True):
+    sombra = fonte.render(texto, True, CORES["preto"])
+    imagem = fonte.render(texto, True, cor)
+    if centralizado:
+        posicao = imagem.get_rect(center=(x, y))
+    else:
+        posicao = imagem.get_rect(topleft=(x, y))
+    self.tela.blit(sombra, (posicao.x + 2, posicao.y + 2))
+    self.tela.blit(imagem, posicao)
+
+def escurecer_tela(self, transparencia):
+    camada = pygame.Surface((LARGURA, ALTURA), pygame.SRCALPHA)
+    camada.fill((0, 0, 0, transparencia))
+    self.tela.blit(camada, (0, 0))
+
+def desenhar(self):
+    if self.estado in ("menu", "instrucoes", "recordes"):
+        self.cenario_menu.desenhar(self.tela)
+        if self.estado == "menu":
+            self.desenhar_menu()
+        elif self.estado == "instrucoes":
+            self.desenhar_instrucoes()
+        else:
+            self.desenhar_recordes()
+        return
+
+    self.desenhar_partida()
+    self.desenhar_hud()
+
+    if self.estado == "pausado":
+        self.escurecer_tela(150)
+        self.desenhar_texto("PAUSADO", self.fonte_grande, CORES["branco"], LARGURA // 2, 220)
+        self.desenhar_texto("P = continuar     M = menu", self.fonte_media, CORES["amarelo"], LARGURA // 2, 300)
+
+    elif self.estado == "fase_concluida":
+        self.escurecer_tela(150)
+        proxima = FASES[self.indice_fase + 1]["nome"]
+        self.desenhar_texto("ENTREGA PARCIAL!", self.fonte_grande, CORES["amarelo"], LARGURA // 2, 170)
+        self.desenhar_texto(f"Bônus de vidas: +{self.bonus_fase}", self.fonte_media, CORES["branco"], LARGURA // 2, 240)
+        self.desenhar_texto(f"Pontos: {int(self.pontos)}", self.fonte_media, CORES["branco"], LARGURA // 2, 285)
+        self.desenhar_texto(f"Próxima fase: {proxima}", self.fonte_media, CORES["branco"], LARGURA // 2, 345)
+        self.desenhar_texto("Aperte ENTER", self.fonte_pequena, CORES["amarelo"], LARGURA // 2, 410)
+
+    elif self.estado == "game_over":
+        self.escurecer_tela(170)
+        self.desenhar_texto("GAME OVER", self.fonte_titulo, CORES["vermelho"], LARGURA // 2, 190)
+        self.desenhar_texto(f"Pontos: {int(self.pontos)}   Pães: {self.pombo.paes}", self.fonte_media, CORES["branco"], LARGURA // 2, 280)
+        self.desenhar_texto(f"Você chegou até a fase {self.indice_fase + 1} de {len(FASES)}", self.fonte_media, CORES["branco"], LARGURA // 2, 320)
+        self.desenhar_texto("Só quem completa todas as fases entra no ranking!", self.fonte_pequena, CORES["amarelo"], LARGURA // 2, 370)
+        self.desenhar_texto("Aperte ENTER", self.fonte_pequena, CORES["amarelo"], LARGURA // 2, 420)
+
+    elif self.estado == "vitoria":
+        self.escurecer_tela(150)
+        self.desenhar_texto("ENCOMENDA ENTREGUE!", self.fonte_titulo, CORES["amarelo"], LARGURA // 2, 180)
+        self.desenhar_texto(f"Pontos: {int(self.pontos)}   Pães: {self.pombo.paes}", self.fonte_media, CORES["branco"], LARGURA // 2, 270)
+        self.desenhar_texto("O pombo mais rápido de São Paulo!", self.fonte_media, CORES["branco"], LARGURA // 2, 320)
+        self.desenhar_texto("Aperte ENTER", self.fonte_pequena, CORES["amarelo"], LARGURA // 2, 390)
+
+    elif self.estado == "nome":
+        self.escurecer_tela(180)
+        self.desenhar_texto("NOVO RECORDE!", self.fonte_grande, CORES["amarelo"], LARGURA // 2, 170)
+        self.desenhar_texto(f"{int(self.pontos)} pontos", self.fonte_media, CORES["branco"], LARGURA // 2, 225)
+        self.desenhar_texto("Digite seu nome e aperte ENTER:", self.fonte_media, CORES["branco"], LARGURA // 2, 290)
+        cursor = "_" if int(self.tempo_total * 2) % 2 == 0 else " "
+        self.desenhar_texto(self.nome_digitado + cursor, self.fonte_grande, CORES["amarelo"], LARGURA // 2, 350)
+
+def desenhar_partida(self):
+    self.cenario.desenhar(self.mundo)
+    for obstaculo in self.obstaculos:
+        obstaculo.desenhar(self.mundo)
+    for item in self.itens:
+        item.desenhar(self.mundo)
+    for particula in self.particulas:
+        particula.desenhar(self.mundo)
+    self.pombo.desenhar(self.mundo)
+
+    # Tremor de tela quando o pombo bate
+    deslocamento_x = 0
+    deslocamento_y = 0
+    if self.tremor > 0:
+        deslocamento_x = random.randint(-6, 6)
+        deslocamento_y = random.randint(-6, 6)
+    self.tela.fill(CORES["preto"])
+    self.tela.blit(self.mundo, (deslocamento_x, deslocamento_y))
+
+    # Nome da fase no começo
+    if self.tempo_banner > 0 and self.estado == "jogando":
+        self.desenhar_texto(f"FASE {self.indice_fase + 1}", self.fonte_grande, CORES["amarelo"], LARGURA // 2, 200)
+        self.desenhar_texto(self.fase["nome"], self.fonte_media, CORES["branco"], LARGURA // 2, 250)
+
+def desenhar_bolha_icone(self, tipo, cx, cy):
+    """Bolha colorida com o ícone do power-up (igual à do item no jogo)."""
+    pygame.draw.circle(self.tela, CORES["branco"], (cx, cy), 17)
+    pygame.draw.circle(self.tela, TIPOS_POWERUP[tipo]["cor"], (cx, cy), 15)
+    desenhar_icone(self.tela, tipo, cx, cy, 10)
+
+def desenhar_hud(self):
+    # Vidas (mesmo coração do power-up da coxinha)
+    for i in range(self.pombo.vidas):
+        coracao(self.tela, 28 + i * 30, 28, 11)
+    self.desenhar_texto(f"Pães: {self.pombo.paes}", self.fonte_pequena, CORES["branco"], 16, 46, False)
+
+    # Pontos e multiplicador
+    self.desenhar_texto(f"Pontos: {int(self.pontos)}", self.fonte_media, CORES["branco"], LARGURA - 120, 26)
+    if self.multiplicador > 1:
+        self.desenhar_texto(f"x{self.multiplicador}", self.fonte_media, CORES["amarelo"], LARGURA - 120, 58)
+
+    # Barra de progresso da entrega
+    largura_barra = 320
+    x_barra = LARGURA // 2 - largura_barra // 2
+    progresso = min(1, self.distancia / self.meta_pixels)
+    pygame.draw.rect(self.tela, CORES["preto"], (x_barra - 2, 14, largura_barra + 4, 18))
+    pygame.draw.rect(self.tela, (90, 200, 90), (x_barra, 16, int(largura_barra * progresso), 14))
+    metros = int(self.distancia / PIXELS_POR_METRO)
+    texto = f"Fase {self.indice_fase + 1}: {self.fase['nome']}  {metros}/{self.fase['meta']} m"
+    self.desenhar_texto(texto, self.fonte_pequena, CORES["branco"], LARGURA // 2, 46)
+
+    # Power-ups ativos (canto inferior esquerdo)
+    # Cada item da lista é (tipo, fração do tempo que ainda falta)
+    ativos = []
+    if self.pombo.tem_guarda_chuva:
+        ativos.append(("guarda_chuva", 1))
+    if self.pombo.tempo_ima > 0:
+        ativos.append(("ima", self.pombo.tempo_ima / DURACAO_IMA))
+    if self.pombo.tempo_turbo > 0:
+        ativos.append(("turbo", self.pombo.tempo_turbo / DURACAO_TURBO))
+    y = CHAO_Y + 18
+    for tipo, fracao in ativos:
+        self.desenhar_bolha_icone(tipo, 30, y)
+        nome = TIPOS_POWERUP[tipo]["nome"]
+        self.desenhar_texto(nome, self.fonte_pequena, CORES["branco"], 54, y - 16, False)
+        pygame.draw.rect(self.tela, CORES["preto"], (54, y + 4, 84, 10))
+        pygame.draw.rect(self.tela, CORES["amarelo"], (56, y + 6, int(80 * fracao), 6))
+        y -= 42
+
+def desenhar_menu(self):
+    self.desenhar_texto("POMBO PAULISTANO", self.fonte_titulo, CORES["amarelo"], LARGURA // 2, 100)
+    self.desenhar_texto("Entregue a encomenda atravessando São Paulo!", self.fonte_media, CORES["branco"], LARGURA // 2, 155)
+
+    self.pombo_menu.x = LARGURA // 2
+    self.pombo_menu.y = 215 + math.sin(self.tempo_total * 3) * 10
+    self.pombo_menu.desenhar(self.tela)
+
+    for i in range(len(OPCOES_MENU)):
+        texto = OPCOES_MENU[i]
+        cor = CORES["branco"]
+        if i == self.opcao_menu:
+            texto = "> " + texto + " <"
+            cor = CORES["amarelo"]
+        self.desenhar_texto(texto, self.fonte_media, cor, LARGURA // 2, 290 + i * 45)
+
+    self.desenhar_texto("SETAS para escolher, ENTER para confirmar", self.fonte_pequena, CORES["branco"], LARGURA // 2, CHAO_Y - 10)
+
+def desenhar_instrucoes(self):
+    self.escurecer_tela(170)
+    self.desenhar_texto("COMO JOGAR", self.fonte_grande, CORES["amarelo"], LARGURA // 2, 45)
+    for i in range(len(INSTRUCOES)):
+        self.desenhar_texto(INSTRUCOES[i], self.fonte_pequena, CORES["branco"], LARGURA // 2, 100 + i * 30)
+
+    # Power-ups: ícone + descrição
+    self.desenhar_texto("POWER-UPS", self.fonte_media, CORES["amarelo"], LARGURA // 2, 300)
+    y = 340
+    for tipo in TIPOS_POWERUP:
+        self.desenhar_bolha_icone(tipo, 300, y)
+        self.desenhar_texto(TIPOS_POWERUP[tipo]["descricao"], self.fonte_pequena, CORES["branco"], 330, y - 9, False)
+        y += 38
+
+    self.desenhar_texto("P = pausar        ESC ou ENTER = voltar", self.fonte_pequena, CORES["amarelo"], LARGURA // 2, 505)
+
+def desenhar_recordes(self):
+    self.escurecer_tela(170)
+    self.desenhar_texto("RECORDES", self.fonte_grande, CORES["amarelo"], LARGURA // 2, 80)
+    if len(self.recordes) == 0:
+        self.desenhar_texto("Nenhum recorde ainda. Seja o primeiro!", self.fonte_media, CORES["branco"], LARGURA // 2, 250)
+    for i in range(len(self.recordes)):
+        recorde = self.recordes[i]
+        linha = f"{i + 1}. {recorde['nome']:<12} {recorde['pontos']:>6}"
+        self.desenhar_texto(linha, self.fonte_media, CORES["branco"], LARGURA // 2, 160 + i * 50)
+    self.desenhar_texto("ESC ou ENTER para voltar", self.fonte_pequena, CORES["amarelo"], LARGURA // 2, 470)
