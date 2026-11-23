@@ -115,7 +115,7 @@ class Pombo:
         #corpo
         pygame.draw.ellipse(tela, CORES["cinza_pombo"], (cx-24,cy-14,44,28))
         #pescoco verde
-        pygame.draw.circle(tela, CORES["verde_pecoco"],(cx+13,cy-3),8)
+        pygame.draw.circle(tela, CORES["verde_pescoco"],(cx+13,cy-3),8)
         #cabeca
         pygame.draw.circle(tela, CORES["cinza_pombo"],(cx-20, cy-11),10)
         #olho
