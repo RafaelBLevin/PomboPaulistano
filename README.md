@@ -54,5 +54,6 @@ Delta time (movimento independente do FPS)
 Sons gerados matematicamente com o módulo array
 Partículas e tremor de tela
 Ranking salvo em arquivo
-
+Uso de IA generativa:
+Ajuda na criação dos sprites(coração,guarda-chuva,raio,imã e pombo) e ajuda a entender funções do pygame como (pygame.draw, pygame.Rect)
 https://youtu.be/wLfsu3B74Ck
