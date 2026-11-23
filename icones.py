@@ -52,11 +52,11 @@ def raio(tela,cx,cy,s):
     pontos = []
     for px, py in formato:
         pontos.append((cx + px * s, cy + py * s))
-        pygame.draw.polygon(tela, (255,230,40), pontos)
-        pygame.draw.polygon(tela, (150,70,0), pontos, 2)
-        #dicionario que liga o tipo de power-up à função que desenha o ícone
-        ICONES = {"guarda_chuva": guarda_chuva, 'ima': ima, "turbo": raio, "coxinha": coracao,}
-        def desenhar_icone(tela, tipo, cx,cy,s):
+    pygame.draw.polygon(tela, (255,230,40), pontos)
+    pygame.draw.polygon(tela, (150,70,0), pontos, 2)
+#dicionario que liga o tipo de power-up à função que desenha o ícone
+ICONES = {"guarda_chuva": guarda_chuva, 'ima': ima, "turbo": raio, "coxinha": coracao,}
+def desenhar_icone(tela, tipo, cx,cy,s):
             funcao = ICONES[tipo]
             funcao(tela, cx, cy, s)
             
