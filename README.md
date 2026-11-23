@@ -3,7 +3,7 @@ Integrantes
 Rafael Baldassarri Levin
 Pedro Buelta
 Vídeo
-Link do vídeo: (colocar aqui)
+Link do vídeo: (https://youtu.be/wLfsu3B74Ck)
 
 Como instalar e rodar
 Instale o Python 3 (versão 3.9 ou mais nova).
@@ -56,4 +56,4 @@ Partículas e tremor de tela
 Ranking salvo em arquivo
 Uso de IA generativa:
 Ajuda na criação dos sprites(coração,guarda-chuva,raio,imã e pombo) e ajuda a entender funções do pygame como (pygame.draw, pygame.Rect)
-https://youtu.be/wLfsu3B74Ck
+
